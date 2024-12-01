@@ -1,0 +1,378 @@
+{% extends "index.html" %}
+
+{% block logo_container %}
+<style>
+    .back-button {
+        background-color: transparent;
+        border: 2px solid var(--netflix-red);
+        color: var(--netflix-red);
+        padding: 8px 20px;
+        border-radius: 4px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .back-button:hover {
+        background-color: var(--netflix-red);
+        color: white;
+    }
+
+    .logo-container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1rem 2rem;
+    }
+
+    .logo-center {
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
+    }
+
+    .logo-center img {
+        max-height: 60px;
+    }
+</style>
+
+<div class="logo-container">
+    <a href="/" class="back-button">
+        <i class="fas fa-arrow-left"></i> Voltar
+    </a>
+    <div class="logo-center">
+        <img src="/static/logo.jpg" alt="Logo">
+    </div>
+    <div style="width: 100px;"></div>
+</div>
+{% endblock %}
+
+{% block content %}
+<style>
+    .admin-container {
+        max-width: 1200px;
+        margin: 2rem auto;
+        padding: 0 1rem;
+    }
+
+    .admin-section {
+        background: rgba(0, 0, 0, 0.75);
+        border-radius: 4px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .admin-section h3 {
+        color: var(--netflix-red);
+        margin-bottom: 1.5rem;
+    }
+
+    .search-container {
+        margin-bottom: 1.5rem;
+        display: flex;
+        gap: 1rem;
+    }
+
+    .search-input {
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid var(--netflix-gray);
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 4px;
+        width: 100%;
+        max-width: 400px;
+    }
+
+    .search-input::placeholder {
+        color: rgba(255, 255, 255, 0.5);
+    }
+
+    .table {
+        color: #e5e5e5;
+    }
+
+    .table thead th {
+        border-color: var(--netflix-gray);
+    }
+
+    .btn-primary {
+        background-color: var(--netflix-red);
+        border-color: var(--netflix-red);
+    }
+
+    .btn-primary:hover {
+        background-color: var(--netflix-dark-red);
+        border-color: var(--netflix-dark-red);
+    }
+
+    .modal-content {
+        background: rgba(0, 0, 0, 0.9);
+        border: 1px solid var(--netflix-gray);
+        color: #e5e5e5;
+    }
+
+    .modal-header {
+        border-bottom-color: var(--netflix-gray);
+    }
+
+    .modal-footer {
+        border-top-color: var(--netflix-gray);
+    }
+
+    .form-control, .form-select {
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid var(--netflix-gray);
+        color: white;
+    }
+
+    .form-control:focus, .form-select:focus {
+        background: rgba(255, 255, 255, 0.2);
+        border-color: var(--netflix-red);
+        color: white;
+        box-shadow: 0 0 0 0.25rem rgba(229, 9, 20, 0.25);
+    }
+
+    .form-control::placeholder {
+        color: rgba(255, 255, 255, 0.5);
+    }
+
+    .form-select {
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23ffffff' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e");
+    }
+
+    .form-select option {
+        background: rgba(0, 0, 0, 0.9);
+    }
+</style>
+
+<div class="admin-container">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }}">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <div class="admin-section">
+        <h3>Gerenciamento de Usuários</h3>
+        
+        <div class="search-container">
+            <input type="text" id="userSearch" class="search-input" placeholder="Buscar usuário por email..." oninput="filterUsers()">
+            <button class="btn btn-primary" onclick="openNewUserModal()">Novo Usuário</button>
+        </div>
+
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Email</th>
+                    <th>Função</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody id="userTableBody">
+                {% for user in users %}
+                <tr>
+                    <td>{{ user.email }}</td>
+                    <td>{{ user.role }}</td>
+                    <td>
+                        <div class="btn-group">
+                            <button class="btn btn-sm btn-primary" onclick="openEditModal('{{ user.id }}')">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn btn-sm btn-warning" onclick="sendPasswordReset('{{ user.id }}')">
+                                <i class="fas fa-key"></i>
+                            </button>
+                            {% if current_user.role == 'owner' %}
+                            <button class="btn btn-sm btn-danger" onclick="deleteUser('{{ user.id }}')">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                            {% endif %}
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Modal Novo Usuário -->
+<div class="modal fade" id="newUserModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Novo Usuário</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="newUserForm">
+                    <div class="mb-3">
+                        <label class="form-label">Email</label>
+                        <input type="email" class="form-control" id="newUserEmail" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Função</label>
+                        <select class="form-select" id="newUserRole" required>
+                            <option value="user">Usuário Comum</option>
+                            <option value="admin">Administrador</option>
+                            {% if current_user.role == 'owner' %}
+                            <option value="owner">Owner</option>
+                            {% endif %}
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" onclick="createUser()">Criar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Editar Usuário -->
+<div class="modal fade" id="editUserModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Editar Permissões</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="editUserForm">
+                    <input type="hidden" id="editUserId">
+                    <div class="mb-3">
+                        <label class="form-label">Função</label>
+                        <select class="form-select" id="editUserRole" required>
+                            <option value="user">Usuário Comum</option>
+                            <option value="admin">Administrador</option>
+                            {% if current_user.role == 'owner' %}
+                            <option value="owner">Owner</option>
+                            {% endif %}
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" onclick="updateUser()">Salvar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function filterUsers() {
+    const searchTerm = document.getElementById('userSearch').value.toLowerCase();
+    const rows = document.getElementById('userTableBody').getElementsByTagName('tr');
+    
+    for (let row of rows) {
+        const email = row.cells[0].textContent.toLowerCase();
+        const role = row.cells[1].textContent.toLowerCase();
+        
+        if (email.includes(searchTerm) || role.includes(searchTerm)) {
+            row.style.display = '';
+        } else {
+            row.style.display = 'none';
+        }
+    }
+}
+
+function openNewUserModal() {
+    const modal = new bootstrap.Modal(document.getElementById('newUserModal'));
+    modal.show();
+}
+
+function createUser() {
+    const userData = {
+        email: document.getElementById('newUserEmail').value,
+        role: document.getElementById('newUserRole').value
+    };
+
+    fetch('/api/users', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(userData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            location.reload();
+        } else {
+            alert(data.error || 'Erro ao criar usuário');
+        }
+    });
+}
+
+function openEditModal(userId) {
+    document.getElementById('editUserId').value = userId;
+    
+    fetch(`/api/users/${userId}`)
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById('editUserRole').value = data.role;
+            const modal = new bootstrap.Modal(document.getElementById('editUserModal'));
+            modal.show();
+        });
+}
+
+function updateUser() {
+    const userId = document.getElementById('editUserId').value;
+    const role = document.getElementById('editUserRole').value;
+    
+    fetch(`/api/users/${userId}`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ role: role })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            location.reload();
+        } else {
+            alert(data.error || 'Erro ao atualizar usuário');
+        }
+    });
+}
+
+function sendPasswordReset(userId) {
+    if (!confirm('Enviar email de reset de senha para este usuário?')) return;
+    
+    fetch(`/api/users/${userId}/reset-password`, {
+        method: 'POST'
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('Email de reset de senha enviado com sucesso!');
+        } else {
+            alert(data.error || 'Erro ao enviar email de reset');
+        }
+    });
+}
+
+function deleteUser(userId) {
+    if (!confirm('Tem certeza que deseja excluir este usuário?')) return;
+    
+    fetch(`/api/users/${userId}`, {
+        method: 'DELETE'
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            location.reload();
+        } else {
+            alert(data.error || 'Erro ao excluir usuário');
+        }
+    });
+}
+</script>
+{% endblock %}

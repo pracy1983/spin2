@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editar Aluno</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --netflix-black: #141414;
+            --netflix-red: #E50914;
+            --netflix-dark-red: #B81D24;
+            --netflix-gray: #808080;
+            --netflix-light-gray: #E5E5E5;
+        }
+
+        body {
+            background-color: var(--netflix-black);
+            color: white;
+            font-family: 'Open Sans', Arial, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .logo-container {
+            padding: 1rem 2rem;
+            background-color: rgba(0,0,0,0.9);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.5);
+            text-align: center;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo-container img {
+            max-height: 60px;
+        }
+
+        .back-button {
+            background-color: transparent;
+            border: 2px solid var(--netflix-red);
+            color: var(--netflix-red);
+            padding: 8px 20px;
+            border-radius: 4px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+
+        .back-button:hover {
+            background-color: var(--netflix-red);
+            color: white;
+        }
+
+        .logo-center {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .main-content {
+            flex: 1;
+            padding: 2rem;
+            max-width: 800px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .form-container {
+            background-color: #2F2F2F;
+            border-radius: 8px;
+            padding: 2rem;
+            margin-top: 2rem;
+        }
+
+        .form-title {
+            color: var(--netflix-light-gray);
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            color: var(--netflix-gray);
+            font-weight: 600;
+        }
+
+        .form-control {
+            background-color: #1F1F1F;
+            border: 1px solid #404040;
+            color: white;
+        }
+
+        .form-control:focus {
+            background-color: #1F1F1F;
+            border-color: var(--netflix-red);
+            color: white;
+            box-shadow: 0 0 0 0.25rem rgba(229, 9, 20, 0.25);
+        }
+
+        .btn-primary {
+            background-color: var(--netflix-red);
+            border-color: var(--netflix-red);
+            font-weight: 600;
+            padding: 0.5rem 2rem;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--netflix-dark-red);
+            border-color: var(--netflix-dark-red);
+        }
+
+        .profile-photo {
+            width: 200px;
+            height: 267px;
+            background-color: #1F1F1F;
+            border-radius: 8px;
+            overflow: hidden;
+            margin: 0 auto 1rem;
+        }
+
+        .profile-photo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .form-check-input:checked {
+            background-color: var(--netflix-red);
+            border-color: var(--netflix-red);
+        }
+    </style>
+</head>
+<body>
+    <div class="logo-container">
+        <a href="/visualizar_aluno/{{ aluno.id }}" class="back-button">
+            <i class="fas fa-arrow-left"></i> Voltar
+        </a>
+        <div class="logo-center">
+            <img src="{{ url_for('static', filename='logo.jpg') }}" alt="Logo">
+        </div>
+        <div style="width: 100px;"></div>
+    </div>
+
+    <div class="main-content">
+        <div class="form-container">
+            <h2 class="form-title">Editar Aluno</h2>
+            <form id="editForm" action="/atualizar_aluno/{{ aluno.id }}" method="POST" enctype="multipart/form-data">
+                <div class="profile-photo">
+                    <img src="{{ aluno.foto_url if aluno.foto_url else url_for('static', filename='default-profile.jpg') }}" 
+                         alt="Foto do aluno" id="previewImage">
+                </div>
+                
+                <div class="mb-3">
+                    <label for="foto" class="form-label">Nova Foto</label>
+                    <input type="file" class="form-control" id="foto" name="foto" accept="image/*">
+                </div>
+
+                <div class="mb-3">
+                    <label for="nome" class="form-label">Nome Completo</label>
+                    <input type="text" class="form-control" id="nome" name="nome" value="{{ aluno.nome }}">
+                </div>
+
+                <div class="mb-3">
+                    <label for="email" class="form-label">Email</label>
+                    <input type="email" class="form-control" id="email" name="email" value="{{ aluno.email }}">
+                </div>
+
+                <div class="mb-3">
+                    <label for="telefone" class="form-label">Telefone</label>
+                    <input type="tel" class="form-control" id="telefone" name="telefone" value="{{ aluno.telefone }}">
+                </div>
+
+                <div class="mb-3">
+                    <label for="cpf" class="form-label">CPF</label>
+                    <input type="text" class="form-control" id="cpf" name="cpf" value="{{ aluno.cpf }}">
+                </div>
+
+                <div class="mb-3">
+                    <label for="data_nascimento" class="form-label">Data de Nascimento</label>
+                    <input type="date" class="form-control" id="data_nascimento" name="data_nascimento" 
+                           value="{{ aluno.data_nascimento }}">
+                </div>
+
+                <div class="mb-3">
+                    <label for="endereco" class="form-label">Endereço</label>
+                    <input type="text" class="form-control" id="endereco" name="endereco" value="{{ aluno.endereco }}">
+                </div>
+
+                <div class="mb-3">
+                    <label for="bairro" class="form-label">Bairro</label>
+                    <input type="text" class="form-control" id="bairro" name="bairro" value="{{ aluno.bairro }}">
+                </div>
+
+                <div class="mb-3">
+                    <label for="cidade" class="form-label">Cidade</label>
+                    <input type="text" class="form-control" id="cidade" name="cidade" value="{{ aluno.cidade }}">
+                </div>
+
+                <div class="mb-3">
+                    <label for="estado" class="form-label">Estado</label>
+                    <input type="text" class="form-control" id="estado" name="estado" value="{{ aluno.estado }}">
+                </div>
+
+                <div class="mb-3">
+                    <label for="cep" class="form-label">CEP</label>
+                    <input type="text" class="form-control" id="cep" name="cep" value="{{ aluno.cep }}">
+                </div>
+
+                <div class="mb-3">
+                    <label for="profissao" class="form-label">Profissão</label>
+                    <input type="text" class="form-control" id="profissao" name="profissao" value="{{ aluno.profissao }}">
+                </div>
+
+                <div class="mb-3">
+                    <label for="empresa" class="form-label">Empresa</label>
+                    <input type="text" class="form-control" id="empresa" name="empresa" value="{{ aluno.empresa }}">
+                </div>
+
+                <div class="mb-3">
+                    <label for="instagram" class="form-label">Instagram</label>
+                    <input type="text" class="form-control" id="instagram" name="instagram" value="{{ aluno.instagram }}">
+                </div>
+
+                <div class="mb-3">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="fundador" name="fundador" 
+                               {% if aluno.fundador %}checked{% endif %}>
+                        <label class="form-check-label" for="fundador">
+                            Fundador
+                        </label>
+                    </div>
+                </div>
+
+                <div class="text-end">
+                    <button type="submit" class="btn btn-primary">Salvar Alterações</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Preview da imagem
+        document.getElementById('foto').addEventListener('change', function(e) {
+            if (e.target.files && e.target.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('previewImage').src = e.target.result;
+                };
+                reader.readAsDataURL(e.target.files[0]);
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Gestão</title>
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --netflix-black: #141414;
+            --netflix-red: #E50914;
+            --netflix-dark-red: #B81D24;
+            --netflix-gray: #808080;
+            --netflix-light-gray: #E5E5E5;
+            --card-hover-scale: 1.05;
+        }
+
+        body {
+            background-color: var(--netflix-black);
+            color: white;
+            font-family: 'Open Sans', Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .logo-container {
+            padding: 1rem 2rem;
+            background-color: rgba(0,0,0,0.9);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.5);
+            text-align: center;
+        }
+
+        .logo-container img {
+            max-height: 60px;
+        }
+
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding-top: 20px;
+        }
+
+        .cards-container {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 0 60px;
+        }
+
+        .cards-row {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .netflix-card {
+            width: 280px;
+            height: 200px;
+            background-color: #2F2F2F;
+            border-radius: 8px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            border: 1px solid #404040;
+        }
+
+        .netflix-card:hover {
+            transform: scale(var(--card-hover-scale));
+            z-index: 2;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+            border-color: var(--netflix-red);
+        }
+
+        .card-content {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 20px;
+            background: linear-gradient(to top, rgba(0,0,0,0.9), transparent);
+            color: white;
+            text-align: center;
+        }
+
+        .card-icon {
+            font-size: 3rem;
+            margin-bottom: 10px;
+        }
+
+        .card-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        @media (max-width: 1200px) {
+            .cards-row {
+                gap: 15px;
+            }
+            
+            .netflix-card {
+                width: 250px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .logo-container {
+                padding: 1rem;
+            }
+            
+            .cards-container {
+                padding: 0 20px;
+            }
+            
+            .cards-row {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .netflix-card {
+                width: 100%;
+                max-width: 300px;
+            }
+        }
+    </style>
+</head>
+<body>
+    {% block logo_container %}
+    <div class="logo-container">
+        <img src="/static/logo.jpg" alt="Logo">
+    </div>
+    {% endblock %}
+
+    <div class="main-content">
+        {% block content %}
+        <div class="cards-container">
+            <div class="cards-row">
+                <div class="netflix-card" onclick="window.location.href='/lista_alunos'">
+                    <div class="card-content">
+                        <i class="fas fa-user-graduate card-icon"></i>
+                        <h3 class="card-title">Alunos</h3>
+                        <p>Gerencie cadastros e informações dos alunos</p>
+                    </div>
+                </div>
+                
+                <div class="netflix-card" onclick="window.location.href='/lista_convidados'">
+                    <div class="card-content">
+                        <i class="fas fa-users card-icon"></i>
+                        <h3 class="card-title">Convidados</h3>
+                        <p>Controle a lista de convidados e eventos</p>
+                    </div>
+                </div>
+
+                <div class="netflix-card" onclick="window.location.href='/cadastro_aluno'">
+                    <div class="card-content">
+                        <i class="fas fa-user-plus card-icon"></i>
+                        <h3 class="card-title">Novo Aluno</h3>
+                        <p>Cadastre um novo aluno no sistema</p>
+                    </div>
+                </div>
+                
+                <div class="netflix-card" onclick="window.location.href='/importar_dados'">
+                    <div class="card-content">
+                        <i class="fas fa-file-import card-icon"></i>
+                        <h3 class="card-title">Importar Dados</h3>
+                        <p>Importe dados de planilhas e arquivos externos</p>
+                    </div>
+                </div>
+                
+                <div class="netflix-card" onclick="window.location.href='/frequencia'">
+                    <div class="card-content">
+                        <i class="fas fa-calendar-check card-icon"></i>
+                        <h3 class="card-title">Calendário de Presença</h3>
+                        <p>Gerencie a frequência dos alunos</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endblock %}
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

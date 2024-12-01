@@ -1,0 +1,568 @@
+{% extends "index.html" %}
+
+{% block content %}
+<style>
+    :root {
+        --netflix-black: #141414;
+        --netflix-red: #E50914;
+        --netflix-dark-red: #B81D24;
+        --netflix-gray: #808080;
+        --netflix-light-gray: #E5E5E5;
+        --netflix-hover: #2F2F2F;
+        --netflix-dark: #1F1F1F;
+        --netflix-card: #2F2F2F;
+        --netflix-card-shadow: rgba(0, 0, 0, 0.75);
+        --netflix-text: #FFFFFF;
+    }
+
+    body {
+        font-family: 'Open Sans', Arial, sans-serif;
+        background-color: var(--netflix-black);
+        color: var(--netflix-text);
+    }
+
+    .logo-container {
+        padding: 1rem 2rem;
+        background-color: rgba(0,0,0,0.9);
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.5);
+        text-align: center;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .logo-container img {
+        max-height: 60px;
+    }
+
+    .back-button {
+        background-color: transparent;
+        border: 2px solid var(--netflix-red);
+        color: var(--netflix-red);
+        padding: 8px 20px;
+        border-radius: 4px;
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .back-button:hover {
+        background-color: var(--netflix-red);
+        color: white;
+        text-decoration: none;
+    }
+
+    .main-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 20px;
+    }
+
+    .profile-container {
+        display: grid;
+        grid-template-columns: 300px 1fr;
+        gap: 2rem;
+        background-color: var(--netflix-dark);
+        border-radius: 10px;
+        padding: 2rem;
+        box-shadow: 0 4px 6px var(--netflix-card-shadow);
+        margin-top: 2rem;
+    }
+
+    .photo-section {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+
+    .profile-photo {
+        width: 200px;
+        height: 267px;
+        object-fit: cover;
+        border-radius: 8px;
+        margin-bottom: 1rem;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .photo-upload {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .section-divider {
+        grid-column: 1 / -1;
+        border-top: 1px solid var(--netflix-gray);
+        margin: 1rem 0;
+        padding-top: 0.8rem;
+        font-size: 1.1rem;
+        color: var(--netflix-light-gray);
+        font-weight: 600;
+    }
+
+    .info-section {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 0.8rem;
+        align-items: start;
+    }
+
+    .info-group {
+        margin-bottom: 0.5rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.3rem;
+    }
+
+    .info-group.full-width {
+        grid-column: 1 / -1;
+    }
+
+    .info-label {
+        color: var(--netflix-gray);
+        font-size: 0.85rem;
+        font-weight: 600;
+        margin-bottom: 0;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .info-value {
+        color: var(--netflix-text);
+        font-size: 0.95rem;
+        padding: 0.4rem 0.8rem;
+        background-color: var(--netflix-card);
+        border-radius: 4px;
+        border: 1px solid transparent;
+        transition: all 0.3s ease;
+        width: 100%;
+        min-height: 36px;
+        line-height: 1.2;
+    }
+
+    .info-value:disabled {
+        background-color: transparent;
+        border-color: transparent;
+        padding-left: 0;
+        cursor: default;
+        opacity: 1;
+    }
+
+    .info-value:not(:disabled) {
+        background-color: var(--netflix-hover);
+        border-color: var(--netflix-gray);
+        cursor: text;
+        padding: 0.4rem 0.8rem;
+    }
+
+    .info-value:focus {
+        border-color: var(--netflix-red);
+        box-shadow: 0 0 0 2px rgba(229, 9, 20, 0.25);
+        outline: none;
+        background-color: var(--netflix-black);
+    }
+
+    .form-select {
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23ffffff' d='M6 8.825L1.175 4 2.238 2.938 6 6.7l3.763-3.762L10.825 4z'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 10px center;
+        padding-right: 30px;
+    }
+
+    .form-select:disabled {
+        background-image: none;
+    }
+
+    .form-check {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.4rem 0;
+        margin: 0;
+    }
+
+    .form-check-input {
+        width: 18px;
+        height: 18px;
+        margin: 0;
+        cursor: pointer;
+        border-color: var(--netflix-gray);
+    }
+
+    .form-check-input:checked {
+        background-color: var(--netflix-red);
+        border-color: var(--netflix-red);
+    }
+
+    .form-check-input:disabled {
+        opacity: 0.7;
+        cursor: default;
+    }
+
+    input[type="date"].info-value {
+        padding-right: 0.4rem;
+    }
+
+    input[type="date"].info-value::-webkit-calendar-picker-indicator {
+        filter: invert(1);
+    }
+
+    input[type="date"].info-value:disabled::-webkit-calendar-picker-indicator {
+        display: none;
+    }
+
+    .action-buttons {
+        grid-column: 1 / -1;
+        display: flex;
+        gap: 1rem;
+        margin-top: 1rem;
+    }
+
+    .btn {
+        padding: 8px 20px;
+        border-radius: 4px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        border: none;
+        cursor: pointer;
+    }
+
+    .btn-primary {
+        background-color: var(--netflix-red);
+        color: white;
+    }
+
+    .btn-primary:hover {
+        background-color: var(--netflix-dark-red);
+        transform: translateY(-1px);
+    }
+
+    .btn-danger {
+        background-color: transparent;
+        border: 2px solid var(--netflix-red);
+        color: var(--netflix-red);
+    }
+
+    .btn-danger:hover {
+        background-color: var(--netflix-red);
+        color: white;
+    }
+
+    .profile-name {
+        font-size: 2rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+    }
+
+    .profile-email {
+        color: var(--netflix-gray);
+        margin-bottom: 1.5rem;
+    }
+</style>
+
+<div class="logo-container">
+    <a href="/lista_alunos" class="back-button">
+        <i class="fas fa-arrow-left"></i> Voltar
+    </a>
+    <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo">
+    <div style="width: 100px"></div>
+</div>
+
+<div class="main-container">
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body text-center">
+                    <img src="{{ aluno.foto_url if aluno.foto_url else url_for('static', filename='default-avatar.jpg') }}" 
+                         alt="Foto do aluno" 
+                         id="alunoFoto"
+                         class="img-fluid mb-3"
+                         style="max-width: 200px; height: auto;">
+                    
+                    {% if current_user.role in ['admin', 'owner'] %}
+                    <div class="mt-2">
+                        <button type="button" class="btn btn-primary" onclick="document.getElementById('fotoInput').click()">
+                            <i class="fas fa-camera"></i> Alterar Foto
+                        </button>
+                        <input type="file" id="fotoInput" style="display: none;" accept="image/*">
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="col-md-8">
+            <form id="form-aluno" class="info-section">
+                <div class="info-group" style="grid-column: 1 / -1">
+                    <h2 class="profile-name">{{ aluno.nome }}</h2>
+                    <p class="profile-email">{{ aluno.email }}</p>
+                    <div class="action-buttons" style="margin: 0">
+                        <button type="button" id="btn-editar" class="btn btn-primary">Editar</button>
+                        <button type="button" id="btn-salvar" class="btn btn-primary d-none">Salvar</button>
+                        <button type="button" id="btn-excluir" class="btn btn-danger d-none">Excluir</button>
+                    </div>
+                </div>
+
+                <div class="section-divider">Dados Pessoais</div>
+
+                <div class="info-group">
+                    <label class="info-label">Nome</label>
+                    <input type="text" class="info-value" name="nome" value="{{ aluno.nome }}" disabled>
+                </div>
+
+                <div class="info-group">
+                    <label class="info-label">Data de Nascimento</label>
+                    <input type="date" class="info-value" name="data_nascimento" value="{{ aluno.data_nascimento }}" disabled>
+                </div>
+
+                <div class="info-group">
+                    <label class="info-label">CPF</label>
+                    <input type="text" class="info-value" name="cpf" value="{{ aluno.cpf }}" disabled>
+                </div>
+
+                <div class="info-group">
+                    <label class="info-label">RG</label>
+                    <input type="text" class="info-value" name="rg" value="{{ aluno.rg }}" disabled>
+                </div>
+
+                <div class="info-group">
+                    <label class="info-label">Email</label>
+                    <input type="email" class="info-value" name="email" value="{{ aluno.email }}" disabled>
+                </div>
+
+                <div class="info-group">
+                    <label class="info-label">Telefone</label>
+                    <input type="tel" class="info-value" name="telefone" value="{{ aluno.telefone }}" disabled>
+                </div>
+
+                <div class="section-divider">Endereço</div>
+
+                <div class="info-group" style="grid-column: 1 / -2">
+                    <label class="info-label">Endereço</label>
+                    <input type="text" class="info-value" name="endereco" value="{{ aluno.endereco }}" disabled>
+                </div>
+
+                <div class="info-group">
+                    <label class="info-label">Número</label>
+                    <input type="text" class="info-value" name="numero" value="{{ aluno.numero }}" disabled>
+                </div>
+
+                <div class="info-group full-width">
+                    <label class="info-label">Complemento</label>
+                    <input type="text" class="info-value" name="complemento" value="{{ aluno.complemento }}" disabled>
+                </div>
+
+                <div class="info-group">
+                    <label class="info-label">CEP</label>
+                    <input type="text" class="info-value" name="cep" value="{{ aluno.cep }}" disabled onblur="buscarCep(this.value)">
+                </div>
+
+                <div class="info-group">
+                    <label class="info-label">Bairro</label>
+                    <input type="text" class="info-value" name="bairro" value="{{ aluno.bairro }}" disabled>
+                </div>
+
+                <div class="info-group">
+                    <label class="info-label">Cidade</label>
+                    <input type="text" class="info-value" name="cidade" value="{{ aluno.cidade }}" disabled>
+                </div>
+
+                <div class="info-group">
+                    <label class="info-label">Estado</label>
+                    <input type="text" class="info-value" name="estado" value="{{ aluno.estado }}" disabled maxlength="2">
+                </div>
+
+                <div class="section-divider">Informações da Ordem</div>
+
+                <div class="info-group">
+                    <label class="info-label">Religião</label>
+                    <input type="text" class="info-value" name="religiao" value="{{ aluno.religiao }}" disabled>
+                </div>
+
+                <div class="info-group">
+                    <label class="info-label">Unidade</label>
+                    <select class="info-value form-select" name="unidade" disabled>
+                        <option value="Templo SP" {% if aluno.unidade == 'Templo SP' %}selected{% endif %}>Templo SP</option>
+                        <option value="Templo BH" {% if aluno.unidade == 'Templo BH' %}selected{% endif %}>Templo BH</option>
+                    </select>
+                </div>
+
+                <div class="info-group">
+                    <label class="info-label">Data de Início de Desenvolvimento</label>
+                    <input type="date" class="info-value" name="data_inicio_desenvolvimento" value="{{ aluno.data_inicio_desenvolvimento }}" disabled>
+                </div>
+
+                <div class="info-group">
+                    <label class="info-label">Data de Início do Estágio</label>
+                    <input type="date" class="info-value" name="data_inicio_estagio" value="{{ aluno.data_inicio_estagio }}" disabled>
+                </div>
+
+                <div class="info-group">
+                    <label class="info-label">Data de Iniciação como Magista</label>
+                    <input type="date" class="info-value" name="data_iniciacao_magista" value="{{ aluno.data_iniciacao_magista }}" disabled>
+                </div>
+
+                <div class="info-group">
+                    <label class="info-label">Data de Iniciação como Mestre</label>
+                    <input type="date" class="info-value" name="data_iniciacao_mestre" value="{{ aluno.data_iniciacao_mestre }}" disabled>
+                </div>
+
+                <div class="info-group">
+                    <label class="info-label">Data de Entrada na N.O.T.</label>
+                    <input type="date" class="info-value" name="data_inicio_not" value="{{ aluno.data_inicio_not }}" disabled>
+                </div>
+
+                <div class="info-group">
+                    <div class="form-check">
+                        <input type="checkbox" class="form-check-input" name="fundador" {% if aluno.fundador %}checked{% endif %} disabled>
+                        <label class="info-label">Fundador</label>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.getElementById('form-aluno');
+        const btnEditar = document.getElementById('btn-editar');
+        const btnSalvar = document.getElementById('btn-salvar');
+        const btnExcluir = document.getElementById('btn-excluir');
+        const inputs = form.querySelectorAll('input, select, textarea');
+        const fotoInput = document.getElementById('fotoInput');
+        const alunoFoto = document.getElementById('alunoFoto');
+
+        btnEditar.addEventListener('click', function() {
+            inputs.forEach(input => input.disabled = false);
+            btnEditar.classList.add('d-none');
+            btnSalvar.classList.remove('d-none');
+            btnExcluir.classList.remove('d-none');
+        });
+
+        btnSalvar.addEventListener('click', async function() {
+            const camposPermitidos = [
+                'nome', 'email', 'telefone', 'cpf', 'rg', 'data_nascimento',
+                'endereco', 'cep',
+                'religiao', 'unidade', 'fundador',
+                'data_inicio_desenvolvimento', 'data_inicio_estagio',
+                'data_iniciacao_magista', 'data_inicio_not',
+                'data_iniciacao_mestre'
+            ];
+
+            const formData = {};
+            inputs.forEach(input => {
+                if (camposPermitidos.includes(input.name)) {
+                    if (input.type === 'checkbox') {
+                        formData[input.name] = input.checked;
+                    } else if (input.type === 'date') {
+                        const dateValue = input.value;
+                        if (dateValue) {
+                            try {
+                                const date = new Date(dateValue);
+                                formData[input.name] = date.toISOString().split('T')[0];
+                            } catch (e) {
+                                console.error('Erro ao formatar data:', e);
+                                if (input.defaultValue) {
+                                    formData[input.name] = input.defaultValue;
+                                }
+                            }
+                        } else if (input.defaultValue) {
+                            formData[input.name] = input.defaultValue;
+                        }
+                    } else {
+                        const value = input.value || input.defaultValue;
+                        if (value) {
+                            formData[input.name] = value;
+                        }
+                    }
+                }
+            });
+
+            try {
+                const response = await fetch(`/api/aluno/{{ aluno.id }}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                const data = await response.json();
+                
+                if (response.ok && data.success) {
+                    window.location.href = `/visualizar_aluno/{{ aluno.id }}`;
+                } else {
+                    alert('Erro ao salvar as alterações: ' + (data.error || 'Erro desconhecido'));
+                }
+            } catch (error) {
+                console.error('Erro:', error);
+                alert('Erro ao salvar as alterações');
+            }
+        });
+
+        btnExcluir.addEventListener('click', async function() {
+            if (confirm('Tem certeza que deseja excluir este aluno? Esta ação não pode ser desfeita.')) {
+                try {
+                    const response = await fetch(`/api/aluno/{{ aluno.id }}`, {
+                        method: 'DELETE'
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (response.ok && data.success) {
+                        window.location.href = '/lista_alunos';
+                    } else {
+                        alert('Erro ao excluir aluno: ' + (data.error || 'Erro desconhecido'));
+                    }
+                } catch (error) {
+                    console.error('Erro:', error);
+                    alert('Erro ao excluir aluno');
+                }
+            }
+        });
+
+        if (fotoInput) {
+            fotoInput.addEventListener('change', async function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    const formData = new FormData();
+                    formData.append('foto', file);
+
+                    try {
+                        const response = await fetch('/api/aluno/{{ aluno.id }}/foto', {
+                            method: 'POST',
+                            body: formData
+                        });
+
+                        const data = await response.json();
+                        if (data.success) {
+                            alunoFoto.src = data.foto_url;
+                            showNotification('Foto atualizada com sucesso!', 'success');
+                        } else {
+                            showNotification('Erro ao atualizar foto: ' + data.error, 'error');
+                        }
+                    } catch (error) {
+                        showNotification('Erro ao enviar foto: ' + error, 'error');
+                    }
+                }
+            });
+        }
+
+        function showNotification(message, type) {
+            const notification = document.createElement('div');
+            notification.className = `alert alert-${type} position-fixed top-0 end-0 m-3`;
+            notification.style.zIndex = '9999';
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            setTimeout(() => notification.remove(), 3000);
+        }
+    });
+</script>
+{% endblock %}

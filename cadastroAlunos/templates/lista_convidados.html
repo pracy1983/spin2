@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lista de Convidados Cadastrados</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <style>
+        :root {
+            --primary-color: #4a90e2;
+            --background-main: #1a1a1a;
+            --background-card: #2d2d2d;
+            --text-primary: #ffffff;
+            --text-secondary: #b3b3b3;
+            --border-color: #404040;
+        }
+
+        body {
+            background-color: var(--background-main);
+            color: var(--text-primary);
+            font-family: 'Open Sans', sans-serif;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px 0;
+        }
+
+        .logo-container {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .logo-container img {
+            max-width: 200px;
+            height: auto;
+        }
+
+        .nav-buttons {
+            margin-bottom: 2rem;
+        }
+
+        .search-box {
+            max-width: 300px;
+            margin-right: 1rem;
+        }
+
+        .search-box input {
+            background-color: var(--background-card) !important;
+            border-color: var(--border-color);
+            color: var(--text-primary) !important;
+        }
+
+        .card {
+            background-color: var(--background-card);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1rem;
+            height: 100%;
+            transition: transform 0.2s;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        .card-title {
+            color: var(--text-primary);
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .card-text {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+
+        .btn-primary:hover {
+            background-color: #357abd;
+            border-color: #357abd;
+        }
+
+        .guest-info {
+            margin-top: 0.5rem;
+            padding-top: 0.5rem;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .edit-buttons {
+            margin-top: 1rem;
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .btn-outline-danger {
+            display: none;
+        }
+
+        .editing .btn-outline-danger {
+            display: inline-block;
+        }
+    </style>
+</head>
+<body>
+    <div class="logo-container">
+        <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo">
+    </div>
+    <div class="container">
+        <div class="nav-buttons">
+            <div class="d-flex align-items-center justify-content-between mb-4">
+                <div class="d-flex align-items-center">
+                    <div class="search-box">
+                        <input type="text" id="searchInput" class="form-control" placeholder="Buscar convidados...">
+                    </div>
+                </div>
+                <div>
+                    <a href="{{ url_for('index') }}" class="btn btn-primary">
+                        <i class="fas fa-home"></i> Início
+                    </a>
+                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addGuestModal">
+                        <i class="fas fa-plus"></i> Adicionar Convidado
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="row" id="guestContainer">
+            {% for guest in guests %}
+            <div class="col-md-6 mb-4">
+                <div class="card">
+                    <h5 class="card-title">{{ guest.nome }}</h5>
+                    <div class="guest-info">
+                        <p class="card-text"><i class="fas fa-map-marker-alt"></i> {{ guest.cidade }}</p>
+                        <p class="card-text"><i class="fas fa-envelope"></i> {{ guest.email }}</p>
+                        <p class="card-text"><i class="fas fa-phone"></i> {{ guest.telefone }}</p>
+                    </div>
+                    <div class="edit-buttons">
+                        <button class="btn btn-primary btn-edit" onclick="toggleEdit(this, '{{ guest.id }}')">
+                            <i class="fas fa-edit"></i> Editar
+                        </button>
+                        <button class="btn btn-outline-danger btn-delete" onclick="deleteGuest('{{ guest.id }}')">
+                            <i class="fas fa-trash"></i> Deletar
+                        </button>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Modal para adicionar convidado -->
+    <div class="modal fade" id="addGuestModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content bg-dark">
+                <div class="modal-header">
+                    <h5 class="modal-title">Adicionar Convidado</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="addGuestForm">
+                        <div class="mb-3">
+                            <label for="nome" class="form-label">Nome</label>
+                            <input type="text" class="form-control bg-dark text-white" id="nome" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="cidade" class="form-label">Cidade</label>
+                            <input type="text" class="form-control bg-dark text-white" id="cidade" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email</label>
+                            <input type="email" class="form-control bg-dark text-white" id="email" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="telefone" class="form-label">Telefone</label>
+                            <input type="tel" class="form-control bg-dark text-white" id="telefone" required>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" onclick="addGuest()">Adicionar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function toggleEdit(button, guestId) {
+            const card = button.closest('.card');
+            card.classList.toggle('editing');
+        }
+
+        function deleteGuest(guestId) {
+            if (confirm('Tem certeza que deseja deletar este convidado?')) {
+                fetch(`/delete_guest/${guestId}`, {
+                    method: 'DELETE',
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        location.reload();
+                    } else {
+                        alert('Erro ao deletar convidado');
+                    }
+                });
+            }
+        }
+
+        function addGuest() {
+            const formData = {
+                nome: document.getElementById('nome').value,
+                cidade: document.getElementById('cidade').value,
+                email: document.getElementById('email').value,
+                telefone: document.getElementById('telefone').value
+            };
+
+            fetch('/add_guest', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(formData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    location.reload();
+                } else {
+                    alert('Erro ao adicionar convidado');
+                }
+            });
+        }
+
+        document.getElementById('searchInput').addEventListener('input', function(e) {
+            const searchTerm = e.target.value.toLowerCase();
+            const cards = document.querySelectorAll('.card');
+            
+            cards.forEach(card => {
+                const nome = card.querySelector('.card-title').textContent.toLowerCase();
+                const cidade = card.querySelector('.card-text:nth-child(1)').textContent.toLowerCase();
+                const email = card.querySelector('.card-text:nth-child(2)').textContent.toLowerCase();
+                const telefone = card.querySelector('.card-text:nth-child(3)').textContent.toLowerCase();
+                
+                const matches = nome.includes(searchTerm) || 
+                              cidade.includes(searchTerm) || 
+                              email.includes(searchTerm) || 
+                              telefone.includes(searchTerm);
+                
+                card.closest('.col-md-6').style.display = matches ? '' : 'none';
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lista de Alunos</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <style>
+        :root {
+            --netflix-black: #141414;
+            --netflix-red: #E50914;
+            --netflix-dark-red: #B81D24;
+            --netflix-gray: #808080;
+            --netflix-light-gray: #E5E5E5;
+            --netflix-hover: #2F2F2F;
+            --netflix-card-shadow: rgba(0, 0, 0, 0.75);
+        }
+
+        body {
+            font-family: 'Open Sans', Arial, sans-serif;
+            background-color: var(--netflix-black);
+            color: white;
+            margin: 0;
+            min-height: 100vh;
+        }
+
+        .logo-container {
+            padding: 1rem 2rem;
+            background-color: rgba(0,0,0,0.9);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.5);
+            text-align: center;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo-container img {
+            max-height: 60px;
+        }
+
+        .back-button {
+            background-color: transparent;
+            border: 2px solid var(--netflix-red);
+            color: var(--netflix-red);
+            padding: 8px 20px;
+            border-radius: 4px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+
+        .back-button:hover {
+            background-color: var(--netflix-red);
+            color: white;
+        }
+
+        .logo-center {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .container {
+            padding: 2rem;
+            margin-top: 1rem;
+        }
+
+        .btn-primary {
+            background-color: var(--netflix-red);
+            border-color: var(--netflix-red);
+            color: white;
+            padding: 0.5rem 1.5rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--netflix-dark-red);
+            border-color: var(--netflix-dark-red);
+            transform: scale(1.05);
+        }
+
+        .filters-container {
+            background-color: rgba(20, 20, 20, 0.95);
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .view-toggle {
+            display: inline-flex;
+            background-color: rgba(51, 51, 51, 0.8);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .view-toggle-btn {
+            background: transparent;
+            border: none;
+            color: var(--netflix-light-gray);
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 0.9rem;
+        }
+
+        .view-toggle-btn:hover {
+            background-color: rgba(77, 77, 77, 0.8);
+        }
+
+        .view-toggle-btn.active {
+            background-color: var(--netflix-red);
+            color: white;
+        }
+
+        .search-input {
+            background-color: rgba(51, 51, 51, 0.8);
+            border: 1px solid transparent;
+            border-radius: 4px;
+            color: white;
+            padding: 0.5rem 1rem;
+            font-size: 0.9rem;
+            width: 250px;
+            transition: all 0.3s ease;
+        }
+
+        .search-input:focus {
+            background-color: rgba(77, 77, 77, 0.8);
+            border-color: var(--netflix-red);
+            outline: none;
+        }
+
+        .search-input::placeholder {
+            color: var(--netflix-gray);
+        }
+
+        .filter-btn {
+            background-color: transparent;
+            color: var(--netflix-light-gray);
+            border: none;
+            padding: 0.5rem 1rem;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+
+        .filter-btn:hover {
+            color: white;
+        }
+
+        .filter-btn.active {
+            color: white;
+            font-weight: 600;
+        }
+
+        .filter-btn.active::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 20px;
+            height: 2px;
+            background-color: var(--netflix-red);
+        }
+
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 1.5rem;
+            padding: 1rem 0;
+        }
+
+        .student-card {
+            position: relative;
+            border-radius: 4px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            background-color: var(--netflix-hover);
+        }
+
+        .student-card:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 15px var(--netflix-card-shadow);
+            z-index: 2;
+        }
+
+        .card-img {
+            position: relative;
+            padding-top: 150%;
+            background-color: var(--netflix-hover);
+        }
+
+        .card-img img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .no-photo {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: var(--netflix-hover);
+            color: var(--netflix-gray);
+            font-size: 0.9rem;
+        }
+
+        .card-info {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 1rem;
+            background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.5) 60%, transparent 100%);
+            transition: opacity 0.3s ease;
+            opacity: 0.9;
+        }
+
+        .student-card:hover .card-info {
+            opacity: 1;
+        }
+
+        .card-name {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: white;
+        }
+
+        .card-temple {
+            font-size: 0.9rem;
+            color: var(--netflix-light-gray);
+        }
+
+        .fundador-badge {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background-color: var(--netflix-red);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            z-index: 1;
+        }
+
+        .inactive {
+            opacity: 0.5;
+        }
+
+        .cards-view {
+            display: none;
+        }
+
+        .cards-view.show {
+            display: block;
+        }
+
+        .list-view {
+            display: none;
+            flex-direction: column;
+            gap: 0.75rem;
+            width: 100%;
+            position: relative;
+            z-index: 1;
+        }
+
+        .list-view.show {
+            display: flex;
+        }
+
+        .list-item {
+            display: flex;
+            align-items: center;
+            padding: 1rem;
+            background-color: var(--netflix-hover);
+            border-radius: 4px;
+            text-decoration: none;
+            color: white;
+            transition: all 0.3s ease;
+            width: 100%;
+            position: relative;
+            z-index: 2;
+        }
+
+        .list-item:hover {
+            transform: translateX(10px);
+            background-color: var(--netflix-red);
+        }
+
+        .list-item-photo {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            overflow: hidden;
+            margin-right: 1rem;
+            flex-shrink: 0;
+            position: relative;
+        }
+
+        .list-item-photo img,
+        .list-item-photo .no-photo {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            object-fit: cover;
+        }
+
+        .list-item-photo .no-photo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: var(--netflix-gray);
+            color: white;
+            font-size: 1.2rem;
+        }
+
+        .list-item-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            flex-grow: 1;
+            position: relative;
+        }
+
+        .list-item-name {
+            font-weight: 600;
+            font-size: 1.1rem;
+            flex-grow: 1;
+        }
+
+        .list-item-temple {
+            color: var(--netflix-gray);
+            font-size: 0.9rem;
+            margin-right: 1rem;
+            white-space: nowrap;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+
+            .filters-container {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 1rem;
+            }
+
+            .search-input {
+                width: 100%;
+            }
+
+            .cards-grid {
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+                gap: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="logo-container">
+        <a href="/" class="back-button">
+            <i class="fas fa-arrow-left"></i> Voltar
+        </a>
+        <div class="logo-center">
+            <img src="/static/logo.jpg" alt="Logo">
+        </div>
+        <div style="width: 100px;"></div>
+    </div>
+
+    <div class="container mt-4">
+        <div class="filters-container">
+            <div class="view-toggle">
+                <button class="view-toggle-btn active" data-view="cards">
+                    <i class="fas fa-th"></i>
+                </button>
+                <button class="view-toggle-btn" data-view="list">
+                    <i class="fas fa-list"></i>
+                </button>
+            </div>
+
+            <div class="search-container">
+                <input type="text" id="searchInput" class="search-input" placeholder="Pesquisar alunos...">
+            </div>
+
+            <div class="temple-filter">
+                <button class="filter-btn active" data-temple="todos">Todos</button>
+                <button class="filter-btn" data-temple="sp">Templo SP</button>
+                <button class="filter-btn" data-temple="bh">Templo BH</button>
+            </div>
+
+            <div class="status-filter">
+                <button class="filter-btn active" data-status="ativos">Ativos</button>
+                <button class="filter-btn" data-status="inativos">Inativos</button>
+                <button class="filter-btn" data-status="todos">Todos</button>
+            </div>
+        </div>
+
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1>Lista de Alunos</h1>
+            <a href="/cadastro_aluno" class="btn btn-primary">
+                <i class="fas fa-plus"></i> Novo Aluno
+            </a>
+        </div>
+
+        <div class="cards-view show">
+            <div class="cards-grid" id="cards-grid">
+                <!-- Cards will be inserted here -->
+            </div>
+        </div>
+
+        <div class="list-view" id="listView">
+            <!-- List items will be inserted here -->
+        </div>
+
+        <script>
+            // Always start with cards view
+            const currentView = 'cards';
+            let currentFilters = {
+                temple: 'todos',
+                status: 'ativos'
+            };
+
+            // Set initial view to cards
+            document.querySelectorAll('.view-toggle-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.view === 'cards');
+            });
+
+            // Set initial status filter to active
+            document.querySelectorAll('.status-filter .filter-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.status === 'ativos');
+            });
+
+            // Show cards view on start
+            document.querySelector('.cards-view').classList.add('show');
+            document.querySelector('.list-view').classList.remove('show');
+
+            // View toggle functionality
+            document.querySelectorAll('.view-toggle-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const view = btn.dataset.view;
+                    document.querySelectorAll('.view-toggle-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    
+                    if (view === 'cards') {
+                        document.querySelector('.cards-view').classList.add('show');
+                        document.querySelector('.list-view').classList.remove('show');
+                    } else {
+                        document.querySelector('.cards-view').classList.remove('show');
+                        document.querySelector('.list-view').classList.add('show');
+                    }
+                });
+            });
+
+            // Filter functionality
+            function filterStudents(alunos) {
+                return alunos.filter(aluno => {
+                    // Temple filter
+                    if (currentFilters.temple !== 'todos') {
+                        const temploAluno = aluno.estado === 'MG' ? 'bh' : 'sp';
+                        if (temploAluno !== currentFilters.temple) return false;
+                    }
+
+                    // Status filter
+                    if (currentFilters.status === 'ativos' && aluno.inativo) return false;
+                    if (currentFilters.status === 'inativos' && !aluno.inativo) return false;
+
+                    return true;
+                });
+            }
+
+            // Temple filter buttons
+            document.querySelectorAll('.temple-filter .filter-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('.temple-filter .filter-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    currentFilters.temple = btn.dataset.temple;
+                    loadStudents();
+                });
+            });
+
+            // Status filter buttons
+            document.querySelectorAll('.status-filter .filter-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('.status-filter .filter-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    currentFilters.status = btn.dataset.status;
+                    loadStudents();
+                });
+            });
+
+            // Load and display students
+            function loadStudents() {
+                fetch('/api/alunos')
+                    .then(response => response.json())
+                    .then(alunos => {
+                        // Apply filters
+                        const filteredAlunos = filterStudents(alunos);
+                        
+                        const cardsGrid = document.getElementById('cards-grid');
+                        const listView = document.getElementById('listView');
+                        
+                        cardsGrid.innerHTML = '';
+                        listView.innerHTML = '';
+
+                        filteredAlunos.forEach(aluno => {
+                            // Create card view
+                            const card = document.createElement('div');
+                            card.className = `student-card ${aluno.inativo ? 'inactive' : ''} ${aluno.fundador ? 'fundador' : ''}`;
+                            card.onclick = () => window.location.href = `/visualizar_aluno/${aluno.id}`;
+                            
+                            card.innerHTML = `
+                                <div class="card-img">
+                                    ${aluno.foto_url ? 
+                                        `<img src="${aluno.foto_url}" alt="Foto de ${aluno.nome}">` : 
+                                        '<div class="no-photo"><i class="fas fa-user"></i><p>Sem foto</p></div>'
+                                    }
+                                </div>
+                                <div class="card-info">
+                                    <div class="card-name">${aluno.nome}</div>
+                                    <div class="card-temple">
+                                        ${aluno.estado === 'MG' ? 'Templo BH' : 'Templo SP'}
+                                    </div>
+                                </div>
+                                ${aluno.fundador ? '<div class="fundador-badge">Fundador</div>' : ''}
+                            `;
+                            
+                            cardsGrid.appendChild(card);
+
+                            // Create list view
+                            const listItem = document.createElement('a');
+                            listItem.href = `/visualizar_aluno/${aluno.id}`;
+                            listItem.className = `list-item ${aluno.inativo ? 'inactive' : ''}`;
+
+                            listItem.innerHTML = `
+                                <div class="list-item-photo">
+                                    ${aluno.foto_url ? 
+                                        `<img src="${aluno.foto_url}" alt="Foto de ${aluno.nome}">` : 
+                                        '<div class="no-photo"><i class="fas fa-user"></i></div>'
+                                    }
+                                </div>
+                                <div class="list-item-info">
+                                    <span class="list-item-name">${aluno.nome}</span>
+                                    <div class="list-item-temple">
+                                        ${aluno.estado === 'MG' ? 'Templo BH' : 'Templo SP'}
+                                    </div>
+                                    ${aluno.fundador ? '<div class="fundador-badge">Fundador</div>' : ''}
+                                </div>
+                            `;
+
+                            listView.appendChild(listItem);
+                        });
+                    })
+                    .catch(error => {
+                        console.error('Erro ao carregar alunos:', error);
+                    });
+            }
+
+            // Initial load
+            loadStudents();
+        </script>
+    </div>
+
+    <script src="https://kit.fontawesome.com/a076d05399.js"></script>
+</body>
+</html>

@@ -1,0 +1,356 @@
+{% extends "index.html" %}
+
+{% block logo_container %}
+<style>
+    .back-button {
+        background-color: transparent;
+        border: 2px solid var(--netflix-red);
+        color: var(--netflix-red);
+        padding: 8px 20px;
+        border-radius: 4px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        width: fit-content;
+    }
+
+    .back-button:hover {
+        background-color: var(--netflix-red);
+        color: white;
+    }
+
+    .logo-container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1rem 2rem;
+        position: relative;
+    }
+
+    .logo-center {
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
+        display: flex;
+        align-items: center;
+    }
+
+    .logo-center img {
+        max-height: 60px;
+    }
+</style>
+
+<div class="logo-container">
+    <a href="/" class="back-button">
+        <i class="fas fa-arrow-left"></i> Voltar
+    </a>
+    <div class="logo-center">
+        <img src="/static/logo.jpg" alt="Logo">
+    </div>
+    <div style="width: 100px;"></div>
+</div>
+{% endblock %}
+
+{% block content %}
+<style>
+    .admin-container {
+        max-width: 1200px;
+        margin: 2rem auto;
+        padding: 0 1rem;
+    }
+
+    .admin-section {
+        background: rgba(0, 0, 0, 0.75);
+        border-radius: 4px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .admin-section h3 {
+        color: var(--netflix-red);
+        margin-bottom: 1.5rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .table {
+        color: #e5e5e5;
+    }
+
+    .table thead th {
+        border-color: var(--netflix-gray);
+    }
+
+    .table td {
+        vertical-align: middle;
+    }
+
+    .btn-invite {
+        background-color: var(--netflix-red);
+        color: white;
+        border: none;
+    }
+
+    .btn-invite:hover {
+        background-color: var(--netflix-dark-red);
+        color: white;
+    }
+
+    .invite-code {
+        font-family: monospace;
+        background: #333;
+        padding: 0.5rem;
+        border-radius: 4px;
+    }
+
+    .role-badge {
+        padding: 0.3rem 0.6rem;
+        border-radius: 3px;
+        font-size: 0.8rem;
+        font-weight: 600;
+    }
+
+    .role-owner {
+        background-color: var(--netflix-red);
+    }
+
+    .role-admin {
+        background-color: #1e88e5;
+    }
+
+    .role-user {
+        background-color: var(--netflix-gray);
+    }
+
+    .btn-action {
+        padding: 0.3rem 0.6rem;
+        font-size: 0.8rem;
+    }
+
+    .search-box {
+        position: relative;
+        margin-bottom: 1rem;
+    }
+
+    .search-box input {
+        width: 100%;
+        padding: 0.5rem;
+        border-radius: 4px;
+        border: 1px solid var(--netflix-gray);
+        background: rgba(0, 0, 0, 0.5);
+        color: white;
+    }
+
+    .search-box input::placeholder {
+        color: #999;
+    }
+</style>
+
+<div class="admin-container">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }}">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <div class="admin-section">
+        <button class="btn btn-primary" onclick="window.location.href='{{ url_for('auth.signup') }}'">
+            <i class="fas fa-user-plus"></i> Novo Usuário
+        </button>
+        
+        <div class="search-box">
+            <input type="text" id="userSearchInput" placeholder="Buscar usuários..." onkeyup="filterUsers()">
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th><input type="checkbox" id="selectAll"></th>
+                        <th>Email</th>
+                        <th>Função</th>
+                        <th>Status</th>
+                        <th>Último Login</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody id="userTableBody">
+                    {% for user in users %}
+                    <tr>
+                        <td><input type="checkbox" class="user-checkbox" value="{{ user.id }}"></td>
+                        <td class="text-light">{{ user.email }}</td>
+                        <td>
+                            <span class="role-badge role-{{ user.role }}">{{ user.role }}</span>
+                        </td>
+                        <td>
+                            {% if user.active %}
+                            <span class="badge bg-success">Ativo</span>
+                            {% else %}
+                            <span class="badge bg-danger">Inativo</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if user.last_login_at %}
+                            {{ user.last_login_at|datetime }}
+                            {% else %}
+                            Nunca
+                            {% endif %}
+                        </td>
+                        <td>
+                            <button class="btn btn-warning btn-sm" onclick="sendPasswordReset('{{ user.id }}')" title="Enviar email de reset de senha">
+                                <i class="fas fa-key"></i>
+                            </button>
+                            {% if current_user.role == 'owner' and user.id != current_user.id %}
+                            <button class="btn btn-danger btn-sm" onclick="deleteUser('{{ user.id }}')" title="Inativar usuário">
+                                <i class="fas fa-user-times"></i>
+                            </button>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="admin-section">
+        <button class="btn btn-primary mb-3" onclick="generateInviteCode()">Gerar Novo Código</button>
+        
+        <div class="table-responsive">
+            <table id="inviteCodesTable" class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Código</th>
+                        <th>Criado por</th>
+                        <th>Expira em</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for invite in invites %}
+                    <tr>
+                        <td>{{ invite.code }}</td>
+                        <td>{{ invite.created_by_email }}</td>
+                        <td>
+                            {% if invite.expires_at %}
+                            {{ invite.expires_at|datetime }}
+                            {% else %}
+                            Nunca
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if invite.used %}
+                            <span class="badge bg-secondary">Usado</span>
+                            {% elif invite.expires_at and invite.expires_at < now %}
+                            <span class="badge bg-danger">Expirado</span>
+                            {% else %}
+                            <span class="badge bg-success">Válido</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+function filterUsers() {
+    const input = document.getElementById('userSearchInput');
+    const filter = input.value.toLowerCase();
+    const tbody = document.getElementById('userTableBody');
+    const rows = tbody.getElementsByTagName('tr');
+
+    for (let row of rows) {
+        const emailCell = row.getElementsByTagName('td')[1];
+        const email = emailCell.textContent || emailCell.innerText;
+        row.style.display = email.toLowerCase().includes(filter) ? '' : 'none';
+    }
+}
+
+function generateInviteCode() {
+    fetch('/admin/generate-invite', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.code) {
+            const tbody = document.querySelector('#inviteCodesTable tbody');
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td><span class="invite-code">${data.code}</span></td>
+                <td>Não</td>
+                <td>${new Date().toLocaleString()}</td>
+            `;
+            tbody.insertBefore(row, tbody.firstChild);
+        } else {
+            alert('Erro ao gerar código de convite');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Erro ao gerar código de convite');
+    });
+}
+
+function sendPasswordReset(userId) {
+    if (!confirm('Deseja enviar um email de redefinição de senha para este usuário?')) {
+        return;
+    }
+
+    fetch(`/admin/send-reset/${userId}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.message) {
+            alert('Email de redefinição de senha enviado com sucesso!');
+        } else {
+            alert('Erro ao enviar email de redefinição de senha');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Erro ao enviar email de redefinição de senha');
+    });
+}
+
+function deleteUser(userId) {
+    if (!confirm('Tem certeza que deseja inativar este usuário?')) {
+        return;
+    }
+
+    fetch(`/admin/delete-user/${userId}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            location.reload();
+        } else {
+            alert('Erro ao inativar usuário');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Erro ao inativar usuário');
+    });
+}
+</script>
+{% endblock %}
