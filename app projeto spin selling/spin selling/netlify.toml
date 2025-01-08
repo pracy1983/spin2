@@ -1,0 +1,10 @@
+[build]
+  command = "curl https://sh.rustup.rs -sSf | sh -s -- -y && source $HOME/.cargo/env && rustup default stable && npm install && npm run build"
+  publish = "dist"
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+
