@@ -1,12 +1,8 @@
 {
-  "name": "spinsellerhelper",
+  "name": "askpod",
   "private": true,
-  "version": "1.0.0",
+  "version": "0.0.0",
   "type": "module",
-  "engines": {
-    "node": ">=18 <19",
-    "npm": ">=9"
-  },
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
@@ -15,8 +11,8 @@
   },
   "dependencies": {
     "@emailjs/browser": "^4.4.1",
-    "@supabase/supabase-js": "^2.47.0",
-    "cheerio": "^1.0.0-rc.12",
+    "@supabase/supabase-js": "^2.47.10",
+    "cheerio": "1.0.0-rc.12",
     "clsx": "^2.1.0",
     "cors": "^2.8.5",
     "express": "^4.21.2",
@@ -25,16 +21,17 @@
     "nodemailer": "^6.9.16",
     "openai": "^4.77.0",
     "path": "^0.12.7",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "react-router-dom": "^6.21.3",
-    "zustand": "^4.5.0"
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-router-dom": "^7.1.1",
+    "zustand": "^5.0.2"
   },
   "devDependencies": {
-    "@types/react": "^18.2.48",
+    "@eslint/js": "^9.9.1",
+    "@types/react": "^18.3.5",
     "@types/react-dom": "^18.2.19",
-    "@typescript-eslint/eslint-plugin": "^6.19.1",
-    "@typescript-eslint/parser": "^6.19.1",
+    "@typescript-eslint/eslint-plugin": "^7.0.1",
+    "@typescript-eslint/parser": "^7.0.1",
     "@vitejs/plugin-react": "^4.2.1",
     "autoprefixer": "^10.4.17",
     "eslint": "^8.56.0",
@@ -44,5 +41,10 @@
     "tailwindcss": "^3.4.1",
     "typescript": "^5.3.3",
     "vite": "^5.0.12"
-  }
+  },
+  "main": "eslint.config.js",
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": ""
 }
